@@ -86,3 +86,58 @@ func TestCreate(t *testing.T) {
 		})
 	}
 }
+
+func TestHasDocument(t *testing.T) {
+	query := regexp.QuoteMeta(`SELECT EXISTS(SELECT TRUE FROM accounts WHERE document = $1)`)
+
+	cases := map[string]struct {
+		InputData     string
+		ExpectedData  bool
+		ExpectedError error
+		PrepareMockDB func(mock sqlmock.Sqlmock)
+	}{
+		"should return success": {
+			InputData:     "12312312312",
+			ExpectedData:  true,
+			ExpectedError: nil,
+			PrepareMockDB: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.
+					NewRows([]string{"exists"}).
+					AddRow(true)
+				mock.
+					ExpectQuery(query).
+					WithArgs("12312312312").
+					WillReturnRows(rows)
+			},
+		},
+		"should return error": {
+			InputData:     "12312312312",
+			ExpectedData:  false,
+			ExpectedError: errors.New("fail"),
+			PrepareMockDB: func(mock sqlmock.Sqlmock) {
+				mock.
+					ExpectQuery(query).
+					WithArgs("12312312312").
+					WillReturnError(errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			conn, mock := test.GetSQLMock()
+
+			cs.PrepareMockDB(mock)
+
+			repo := NewRepository(Options{
+				Logger: logger.New(""),
+				DB:     db.NewExtendedDB(conn),
+			})
+
+			data, err := repo.HasDocument(context.Background(), cs.InputData)
+
+			assert.Equal(t, cs.ExpectedData, data)
+			assert.Equal(t, cs.ExpectedError, err)
+		})
+	}
+}

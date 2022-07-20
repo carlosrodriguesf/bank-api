@@ -49,3 +49,18 @@ func (mr *MockRepositoryMockRecorder) Create(ctx, account interface{}) *gomock.C
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), ctx, account)
 }
+
+// HasDocument mocks base method.
+func (m *MockRepository) HasDocument(ctx context.Context, document string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HasDocument", ctx, document)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// HasDocument indicates an expected call of HasDocument.
+func (mr *MockRepositoryMockRecorder) HasDocument(ctx, document interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HasDocument", reflect.TypeOf((*MockRepository)(nil).HasDocument), ctx, document)
+}

@@ -17,6 +17,7 @@ type (
 
 	Repository interface {
 		Create(ctx context.Context, account model.Account) (*model.GeneratedData, error)
+		HasDocument(ctx context.Context, document string) (bool, error)
 	}
 
 	repositoryImpl struct {
@@ -44,4 +45,14 @@ func (r repositoryImpl) Create(ctx context.Context, account model.Account) (*mod
 		return nil, err
 	}
 	return generatedData, nil
+}
+
+func (r repositoryImpl) HasDocument(ctx context.Context, document string) (bool, error) {
+	var exists bool
+	query := "SELECT EXISTS(SELECT TRUE FROM accounts WHERE document = $1)"
+	err := r.db.GetContext(ctx, &exists, query, document)
+	if err != nil {
+		r.logger.Error(err)
+	}
+	return exists, err
 }
