@@ -16,8 +16,8 @@ import (
 
 func TestCreate(t *testing.T) {
 	query := regexp.QuoteMeta(`
-		INSERT INTO accounts(name, document, secret, secret_salt) 
-		VALUES (?, ?, ?, ?)
+		INSERT INTO accounts(name, document, balance, secret, secret_salt) 
+		VALUES (?, ?, ?, ?, ?)
 		RETURNING id, created_at`)
 
 	currentTime := time.Now()
@@ -32,6 +32,7 @@ func TestCreate(t *testing.T) {
 			InputData: model.Account{
 				Name:       "John Doe",
 				Document:   "123.123.123-12",
+				Balance:    100,
 				Secret:     "secret",
 				SecretSalt: "secret salt",
 			},
@@ -46,7 +47,7 @@ func TestCreate(t *testing.T) {
 					AddRow("generated_id", currentTime)
 				mock.ExpectPrepare(query).
 					ExpectQuery().
-					WithArgs("John Doe", "123.123.123-12", "secret", "secret salt").
+					WithArgs("John Doe", "123.123.123-12", 100, "secret", "secret salt").
 					WillReturnRows(rows)
 			},
 		},
@@ -54,6 +55,7 @@ func TestCreate(t *testing.T) {
 			InputData: model.Account{
 				Name:       "John Doe",
 				Document:   "123.123.123-12",
+				Balance:    100,
 				Secret:     "secret",
 				SecretSalt: "secret salt",
 			},
@@ -62,7 +64,7 @@ func TestCreate(t *testing.T) {
 			PrepareMockDB: func(mock sqlmock.Sqlmock) {
 				mock.ExpectPrepare(query).
 					ExpectQuery().
-					WithArgs("John Doe", "123.123.123-12", "secret", "secret salt").
+					WithArgs("John Doe", "123.123.123-12", 100, "secret", "secret salt").
 					WillReturnError(errors.New("fail"))
 			},
 		},

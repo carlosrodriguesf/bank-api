@@ -36,8 +36,8 @@ func NewRepository(opts Options) Repository {
 func (r repositoryImpl) Create(ctx context.Context, account model.Account) (*model.GeneratedData, error) {
 	generatedData := new(model.GeneratedData)
 	query := `
-		INSERT INTO accounts(name, document, secret, secret_salt) 
-		VALUES (:name, :document, :secret, :secret_salt)
+		INSERT INTO accounts(name, document, balance, secret, secret_salt) 
+		VALUES (:name, :document, :balance, :secret, :secret_salt)
 		RETURNING id, created_at`
 	err := r.db.NamedGetContext(ctx, query, generatedData, account)
 	if err != nil {
