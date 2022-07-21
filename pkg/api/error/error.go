@@ -2,6 +2,7 @@ package error
 
 import (
 	"fmt"
+	"github.com/carlosrodriguesf/bank-api/pkg/tool/validator"
 	"net/http"
 )
 
@@ -28,4 +29,14 @@ func NewApiError(httpCode int, message string, detail interface{}) *ApiError {
 
 func (e *ApiError) Error() string {
 	return fmt.Sprintf("%d %s", e.Code, e.Message)
+}
+
+func Get(err error, errorMap map[error]*ApiError) error {
+	if err, ok := err.(*validator.ValidationError); ok {
+		return NewApiError(http.StatusBadRequest, "invalid_payload", err.Violations)
+	}
+	if err := errorMap[err]; err != nil {
+		return err
+	}
+	return nil
 }

@@ -64,11 +64,10 @@ func (s *appImpl) Create(ctx context.Context, creationData model.Account) (*mode
 	}
 
 	return &model.Account{
-		ID:         generatedData.ID,
-		Name:       creationData.Name,
-		Document:   creationData.Document,
-		Secret:     creationData.Secret,
-		SecretSalt: creationData.SecretSalt,
-		CreatedAt:  generatedData.CreatedAt,
+		ID:        generatedData.ID,
+		Name:      creationData.Name,
+		Document:  creationData.Document,
+		Balance:   creationData.Balance,
+		CreatedAt: generatedData.CreatedAt,
 	}, nil
 }

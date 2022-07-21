@@ -6,6 +6,8 @@ import (
 	"github.com/carlosrodriguesf/bank-api/pkg/api"
 	apierror "github.com/carlosrodriguesf/bank-api/pkg/api/error"
 	apimodel "github.com/carlosrodriguesf/bank-api/pkg/api/model"
+	"github.com/carlosrodriguesf/bank-api/pkg/app"
+	"github.com/carlosrodriguesf/bank-api/pkg/repository"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/cache"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/closer"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/db"
@@ -125,8 +127,17 @@ func main() {
 
 	e := startEcho(log)
 
+	repositoryContainer := repository.NewContainer(repository.Options{
+		Logger: log,
+		DB:     connDB,
+	})
+	appContainer := app.NewContainer(app.Options{
+		Logger:     log,
+		Repository: repositoryContainer,
+	})
 	api.Register(e, apimodel.Options{
 		Logger: log,
+		App:    appContainer,
 	})
 
 	if err = e.Start(":" + os.Getenv("PORT")); err != nil {
