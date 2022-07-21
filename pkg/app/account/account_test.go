@@ -185,3 +185,52 @@ func TestCreate(t *testing.T) {
 		})
 	}
 }
+
+func TestList(t *testing.T) {
+	var (
+		accountsExample = []model.Account{{
+			ID:   "account_id",
+			Name: "Account Test",
+		}}
+	)
+	cases := map[string]struct {
+		ExpectedData           []model.Account
+		ExpectedError          error
+		PrepareMockRepoAccount func(mock *account.MockRepository)
+	}{
+		"should return success": {
+			ExpectedData:  accountsExample,
+			ExpectedError: nil,
+			PrepareMockRepoAccount: func(mock *account.MockRepository) {
+				mock.EXPECT().List(gomock.Any()).Return(accountsExample, nil)
+			},
+		},
+		"should return error": {
+			ExpectedData:  nil,
+			ExpectedError: pkgerror.ErrCantListAccounts,
+			PrepareMockRepoAccount: func(mock *account.MockRepository) {
+				mock.EXPECT().List(gomock.Any()).Return(nil, errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			var (
+				ctrl, ctx       = gomock.WithContext(context.Background(), t)
+				mockRepoAccount = account.NewMockRepository(ctrl)
+				app             = NewApp(Options{
+					Logger:      logger.New(""),
+					RepoAccount: mockRepoAccount,
+				})
+			)
+
+			cs.PrepareMockRepoAccount(mockRepoAccount)
+
+			data, err := app.List(ctx)
+
+			assert.Equal(t, cs.ExpectedData, data)
+			assert.Equal(t, cs.ExpectedError, err)
+		})
+	}
+}
