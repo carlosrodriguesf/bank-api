@@ -143,3 +143,80 @@ func TestHasDocument(t *testing.T) {
 		})
 	}
 }
+
+func TestListAccounts(t *testing.T) {
+	var (
+		query           = regexp.QuoteMeta(`SELECT id, name, document, balance, created_at FROM accounts`)
+		accountsExample = []model.Account{
+			{
+				ID:       "account_id_1",
+				Name:     "Account Test 1",
+				Document: "12312312312",
+				Balance:  453,
+			},
+			{
+				ID:       "account_id",
+				Name:     "Account Test",
+				Document: "12312312312",
+				Balance:  819,
+			},
+		}
+	)
+
+	cases := map[string]struct {
+		ExpectedData  []model.Account
+		ExpectedError error
+		PrepareMockDB func(mock sqlmock.Sqlmock)
+	}{
+		"should return success": {
+			ExpectedData:  accountsExample,
+			ExpectedError: nil,
+			PrepareMockDB: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.NewRows([]string{"id", "name", "document", "balance", "created_at"})
+				for _, accountExample := range accountsExample {
+					rows.AddRow(
+						accountExample.ID,
+						accountExample.Name,
+						accountExample.Document,
+						accountExample.Balance,
+						accountExample.CreatedAt,
+					)
+				}
+				mock.ExpectQuery(query).WillReturnRows(rows)
+			},
+		},
+		"should return success without accounts": {
+			ExpectedData:  make([]model.Account, 0),
+			ExpectedError: nil,
+			PrepareMockDB: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.NewRows([]string{"id", "name", "document", "balance", "created_at"})
+				mock.ExpectQuery(query).WillReturnRows(rows)
+			},
+		},
+		"should return error": {
+			ExpectedData:  nil,
+			ExpectedError: errors.New("fail"),
+			PrepareMockDB: func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(query).WillReturnError(errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			conn, mock := test.GetSQLMock()
+
+			cs.PrepareMockDB(mock)
+
+			repo := NewRepository(Options{
+				Logger: logger.New(""),
+				DB:     db.NewExtendedDB(conn),
+			})
+
+			data, err := repo.List(context.Background())
+
+			assert.Equal(t, cs.ExpectedData, data)
+			assert.Equal(t, cs.ExpectedError, err)
+		})
+	}
+}

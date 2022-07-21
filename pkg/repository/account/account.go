@@ -18,6 +18,7 @@ type (
 	Repository interface {
 		Create(ctx context.Context, account model.Account) (*model.GeneratedData, error)
 		HasDocument(ctx context.Context, document string) (bool, error)
+		List(ctx context.Context) ([]model.Account, error)
 	}
 
 	repositoryImpl struct {
@@ -55,4 +56,15 @@ func (r repositoryImpl) HasDocument(ctx context.Context, document string) (bool,
 		r.logger.Error(err)
 	}
 	return exists, err
+}
+
+func (r repositoryImpl) List(ctx context.Context) ([]model.Account, error) {
+	query := `SELECT id, name, document, balance, created_at FROM accounts`
+	accounts := make([]model.Account, 0)
+	err := r.db.SelectContext(ctx, &accounts, query)
+	if err != nil {
+		r.logger.Error(err)
+		return nil, err
+	}
+	return accounts, nil
 }
