@@ -220,3 +220,89 @@ func TestListAccounts(t *testing.T) {
 		})
 	}
 }
+
+func TestGetByIDOrDocument(t *testing.T) {
+	var (
+		query          = regexp.QuoteMeta(`SELECT id, name, document, balance, created_at FROM accounts WHERE id = $1 OR document = $1`)
+		accountExample = model.Account{
+			ID:         "account_id",
+			Name:       "Account Test",
+			Document:   "12312312312",
+			Balance:    100,
+			Secret:     "secret",
+			SecretSalt: "secret_salt",
+		}
+	)
+
+	cases := map[string]struct {
+		InputData     string
+		ExpectedData  *model.Account
+		ExpectedError error
+		PrepareMockDB func(mock sqlmock.Sqlmock)
+	}{
+		"should return success": {
+			InputData:     "id_or_document",
+			ExpectedData:  &accountExample,
+			ExpectedError: nil,
+			PrepareMockDB: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.
+					NewRows([]string{"id", "name", "document", "balance", "secret", "secret_salt", "created_at"}).
+					AddRow(
+						accountExample.ID,
+						accountExample.Name,
+						accountExample.Document,
+						accountExample.Balance,
+						accountExample.Secret,
+						accountExample.SecretSalt,
+						accountExample.CreatedAt,
+					)
+				mock.
+					ExpectQuery(query).
+					WithArgs("id_or_document").
+					WillReturnRows(rows)
+			},
+		},
+		"should return success: account not found": {
+			InputData:     "id_or_document",
+			ExpectedData:  nil,
+			ExpectedError: nil,
+			PrepareMockDB: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.
+					NewRows([]string{"id", "name", "document", "balance", "secret", "secret_salt", "created_at"})
+				mock.
+					ExpectQuery(query).
+					WithArgs("id_or_document").
+					WillReturnRows(rows)
+			},
+		},
+		"should return error": {
+			InputData:     "id_or_document",
+			ExpectedData:  nil,
+			ExpectedError: errors.New("fail"),
+			PrepareMockDB: func(mock sqlmock.Sqlmock) {
+				mock.
+					ExpectQuery(query).
+					WithArgs("id_or_document").
+					WillReturnError(errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			conn, mock := test.GetSQLMock()
+
+			cs.PrepareMockDB(mock)
+
+			repo := NewRepository(Options{
+				Logger: logger.New(""),
+				DB:     db.NewExtendedDB(conn),
+			})
+
+			data, err := repo.GetByIDOrDocument(context.Background(), cs.InputData)
+
+			assert.Equal(t, cs.ExpectedData, data)
+			assert.Equal(t, cs.ExpectedError, err)
+		})
+	}
+}

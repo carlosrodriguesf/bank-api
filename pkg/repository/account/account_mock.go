@@ -50,6 +50,21 @@ func (mr *MockRepositoryMockRecorder) Create(ctx, account interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), ctx, account)
 }
 
+// GetByIDOrDocument mocks base method.
+func (m *MockRepository) GetByIDOrDocument(ctx context.Context, v string) (*model.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByIDOrDocument", ctx, v)
+	ret0, _ := ret[0].(*model.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByIDOrDocument indicates an expected call of GetByIDOrDocument.
+func (mr *MockRepositoryMockRecorder) GetByIDOrDocument(ctx, v interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByIDOrDocument", reflect.TypeOf((*MockRepository)(nil).GetByIDOrDocument), ctx, v)
+}
+
 // HasDocument mocks base method.
 func (m *MockRepository) HasDocument(ctx context.Context, document string) (bool, error) {
 	m.ctrl.T.Helper()
