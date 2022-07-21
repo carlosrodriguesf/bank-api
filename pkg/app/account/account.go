@@ -21,6 +21,7 @@ type (
 	}
 	App interface {
 		Create(ctx context.Context, account model.Account) (*model.Account, error)
+		List(ctx context.Context) ([]model.Account, error)
 	}
 	appImpl struct {
 		logger      logger.Logger
@@ -70,4 +71,13 @@ func (s *appImpl) Create(ctx context.Context, creationData model.Account) (*mode
 		Balance:   creationData.Balance,
 		CreatedAt: generatedData.CreatedAt,
 	}, nil
+}
+
+func (s *appImpl) List(ctx context.Context) ([]model.Account, error) {
+	acc, err := s.repoAccount.List(ctx)
+	if err != nil {
+		s.logger.Error(err)
+		return nil, pkgerror.ErrCantListAccounts
+	}
+	return acc, nil
 }
