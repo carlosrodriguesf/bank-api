@@ -234,3 +234,74 @@ func TestList(t *testing.T) {
 		})
 	}
 }
+
+func TestGetBalance(t *testing.T) {
+	var (
+		accountID      = "accountID"
+		accountExample = model.Account{
+			ID:      "account_id",
+			Name:    "Account Test",
+			Balance: 456,
+		}
+		accountBalanceExample = model.AccountBalance{
+			Balance: accountExample.Balance,
+		}
+	)
+	cases := map[string]struct {
+		InputData              string
+		ExpectedData           *model.AccountBalance
+		ExpectedError          error
+		PrepareMockRepoAccount func(mock *account.MockRepository)
+	}{
+		"should return success": {
+			InputData:     accountID,
+			ExpectedData:  &accountBalanceExample,
+			ExpectedError: nil,
+			PrepareMockRepoAccount: func(mock *account.MockRepository) {
+				mock.EXPECT().
+					GetByIDOrDocument(gomock.Any(), accountID).
+					Return(&accountExample, nil)
+			},
+		},
+		"should return error: account not found": {
+			InputData:     accountID,
+			ExpectedData:  nil,
+			ExpectedError: pkgerror.ErrAccountNotFound,
+			PrepareMockRepoAccount: func(mock *account.MockRepository) {
+				mock.EXPECT().
+					GetByIDOrDocument(gomock.Any(), accountID).
+					Return(nil, nil)
+			},
+		},
+		"should return error": {
+			InputData:     accountID,
+			ExpectedData:  nil,
+			ExpectedError: pkgerror.ErrCantGetAccountBalance,
+			PrepareMockRepoAccount: func(mock *account.MockRepository) {
+				mock.EXPECT().
+					GetByIDOrDocument(gomock.Any(), accountID).
+					Return(nil, errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			var (
+				ctrl, ctx       = gomock.WithContext(context.Background(), t)
+				mockRepoAccount = account.NewMockRepository(ctrl)
+				app             = NewApp(Options{
+					Logger:      logger.New(""),
+					RepoAccount: mockRepoAccount,
+				})
+			)
+
+			cs.PrepareMockRepoAccount(mockRepoAccount)
+
+			data, err := app.GetBalance(ctx, cs.InputData)
+
+			assert.Equal(t, cs.ExpectedData, data)
+			assert.Equal(t, cs.ExpectedError, err)
+		})
+	}
+}

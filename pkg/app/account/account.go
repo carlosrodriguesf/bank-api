@@ -22,6 +22,7 @@ type (
 	App interface {
 		Create(ctx context.Context, account model.Account) (*model.Account, error)
 		List(ctx context.Context) ([]model.Account, error)
+		GetBalance(ctx context.Context, accountID string) (*model.AccountBalance, error)
 	}
 	appImpl struct {
 		logger      logger.Logger
@@ -80,4 +81,18 @@ func (s *appImpl) List(ctx context.Context) ([]model.Account, error) {
 		return nil, pkgerror.ErrCantListAccounts
 	}
 	return acc, nil
+}
+
+func (s *appImpl) GetBalance(ctx context.Context, accountID string) (*model.AccountBalance, error) {
+	acc, err := s.repoAccount.GetByIDOrDocument(ctx, accountID)
+	if err != nil {
+		s.logger.Error(err)
+		return nil, pkgerror.ErrCantGetAccountBalance
+	}
+	if acc == nil {
+		return nil, pkgerror.ErrAccountNotFound
+	}
+	return &model.AccountBalance{
+		Balance: acc.Balance,
+	}, nil
 }

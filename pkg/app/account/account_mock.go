@@ -50,6 +50,21 @@ func (mr *MockAppMockRecorder) Create(ctx, account interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockApp)(nil).Create), ctx, account)
 }
 
+// GetBalance mocks base method.
+func (m *MockApp) GetBalance(ctx context.Context, accountID string) (*model.AccountBalance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBalance", ctx, accountID)
+	ret0, _ := ret[0].(*model.AccountBalance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBalance indicates an expected call of GetBalance.
+func (mr *MockAppMockRecorder) GetBalance(ctx, accountID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBalance", reflect.TypeOf((*MockApp)(nil).GetBalance), ctx, accountID)
+}
+
 // List mocks base method.
 func (m *MockApp) List(ctx context.Context) ([]model.Account, error) {
 	m.ctrl.T.Helper()
