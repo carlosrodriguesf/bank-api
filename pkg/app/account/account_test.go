@@ -24,12 +24,10 @@ func TestCreate(t *testing.T) {
 			Secret:   "secret",
 		}
 		accountExample = model.Account{
-			ID:         "account_id",
-			Name:       "John Doe",
-			Document:   "12312312312",
-			Secret:     "generated_secret",
-			SecretSalt: "generated_salt",
-			CreatedAt:  currentTime,
+			ID:        "account_id",
+			Name:      "John Doe",
+			Document:  "12312312312",
+			CreatedAt: currentTime,
 		}
 		validationErrorExample = &validator.ValidationError{
 			OriginalMessage: "fail",

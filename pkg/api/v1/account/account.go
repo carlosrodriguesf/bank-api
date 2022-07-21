@@ -23,8 +23,9 @@ func Register(g *echo.Group, opts apimodel.Options) {
 	}
 
 	g.POST("/accounts", h.postAccount)
+	g.GET("/accounts", h.getAccounts)
 
-	opts.Logger.WithPreffix("api.v1.account").Info("registered")
+	log.Info("registered")
 }
 
 func (h *handler) postAccount(c echo.Context) error {
@@ -43,6 +44,23 @@ func (h *handler) postAccount(c echo.Context) error {
 		Secret:   body.Secret,
 		Balance:  body.Balance,
 	})
+	if err != nil {
+		if err := apierror.Get(err, errorMap); err != nil {
+			return err
+		}
+		log.Error(err)
+		return apierror.ErrInternal
+	}
+	return c.JSON(http.StatusOK, apimodel.Response{
+		Data: data,
+	})
+}
+
+func (h *handler) getAccounts(c echo.Context) error {
+	ctx := c.Request().Context()
+	log := h.logger.WithContext(ctx)
+
+	data, err := h.accountApp.List(ctx)
 	if err != nil {
 		if err := apierror.Get(err, errorMap); err != nil {
 			return err

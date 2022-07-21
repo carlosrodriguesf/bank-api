@@ -49,3 +49,18 @@ func (mr *MockAppMockRecorder) Create(ctx, account interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockApp)(nil).Create), ctx, account)
 }
+
+// List mocks base method.
+func (m *MockApp) List(ctx context.Context) ([]model.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "List", ctx)
+	ret0, _ := ret[0].([]model.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// List indicates an expected call of List.
+func (mr *MockAppMockRecorder) List(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockApp)(nil).List), ctx)
+}

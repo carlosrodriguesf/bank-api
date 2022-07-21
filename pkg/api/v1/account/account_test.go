@@ -167,3 +167,87 @@ func TestHandler_CreateAccount(t *testing.T) {
 		})
 	}
 }
+
+func TestHandler_getAccounts(t *testing.T) {
+	var (
+		endpoint        = "/api/v1/accounts"
+		accountsExample = []model.Account{
+			{
+				ID:       "account_id_1",
+				Name:     "Account Test 1",
+				Document: "12312312312",
+			},
+			{
+				ID:       "account_id",
+				Name:     "Account Test",
+				Document: "12312312312",
+			},
+		}
+	)
+
+	cases := map[string]struct {
+		ExpectedData   []model.Account
+		ExpectedErr    error
+		PrepareMockApp func(mock *account.MockApp)
+	}{
+		"should return success": {
+			ExpectedData: accountsExample,
+			ExpectedErr:  nil,
+			PrepareMockApp: func(mock *account.MockApp) {
+				mock.EXPECT().List(gomock.Any()).Return(accountsExample, nil)
+			},
+		},
+		"should return error": {
+			ExpectedData: nil,
+			ExpectedErr:  errorMap[pkgerror.ErrCantListAccounts],
+			PrepareMockApp: func(mock *account.MockApp) {
+				mock.EXPECT().List(gomock.Any()).Return(nil, pkgerror.ErrCantListAccounts)
+			},
+		},
+		"should return internal error": {
+			ExpectedData: nil,
+			ExpectedErr:  apierror.ErrInternal,
+			PrepareMockApp: func(mock *account.MockApp) {
+				mock.EXPECT().List(gomock.Any()).Return(nil, errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			ctrl, ctx := gomock.WithContext(context.Background(), t)
+
+			mockApp := account.NewMockApp(ctrl)
+
+			cs.PrepareMockApp(mockApp)
+
+			h := handler{
+				logger:     logger.New(""),
+				accountApp: mockApp,
+			}
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, endpoint, nil).WithContext(ctx)
+			rec := httptest.NewRecorder()
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			c := e.NewContext(req, rec)
+			c.SetPath(endpoint)
+
+			err := h.getAccounts(c)
+
+			assert.Equal(t, cs.ExpectedErr, err)
+
+			expectedResponseJSON, err := json.Marshal(apimodel.Response{Data: cs.ExpectedData})
+			assert.NoError(t, err)
+
+			var expectedResponse apimodel.Response
+			err = json.Unmarshal(expectedResponseJSON, &expectedResponse)
+			assert.NoError(t, err)
+
+			var currentResponse apimodel.Response
+			json.NewDecoder(rec.Body).Decode(&currentResponse)
+
+			assert.Equal(t, expectedResponse, currentResponse)
+		})
+	}
+}
