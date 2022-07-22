@@ -251,3 +251,96 @@ func TestHandler_getAccounts(t *testing.T) {
 		})
 	}
 }
+
+func TestHandler_getAccountBalance(t *testing.T) {
+	var (
+		endpoint       = "/api/v1/accounts/account_id/balance"
+		accountID      = "account_id"
+		balanceExample = model.AccountBalance{
+			Balance: 1000,
+		}
+	)
+
+	cases := map[string]struct {
+		ExpectedData   *model.AccountBalance
+		ExpectedErr    error
+		PrepareMockApp func(mock *account.MockApp)
+	}{
+		"should return success": {
+			ExpectedData: &balanceExample,
+			ExpectedErr:  nil,
+			PrepareMockApp: func(mock *account.MockApp) {
+				mock.EXPECT().
+					GetBalance(gomock.Any(), accountID).
+					Return(&balanceExample, nil)
+			},
+		},
+		"should return error: account not found": {
+			ExpectedData: nil,
+			ExpectedErr:  errorMap[pkgerror.ErrAccountNotFound],
+			PrepareMockApp: func(mock *account.MockApp) {
+				mock.EXPECT().
+					GetBalance(gomock.Any(), accountID).
+					Return(nil, pkgerror.ErrAccountNotFound)
+			},
+		},
+		"should return error: cant get account balance": {
+			ExpectedData: nil,
+			ExpectedErr:  errorMap[pkgerror.ErrCantGetAccountBalance],
+			PrepareMockApp: func(mock *account.MockApp) {
+				mock.EXPECT().
+					GetBalance(gomock.Any(), accountID).
+					Return(nil, pkgerror.ErrCantGetAccountBalance)
+			},
+		},
+		"should return internal error": {
+			ExpectedData: nil,
+			ExpectedErr:  apierror.ErrInternal,
+			PrepareMockApp: func(mock *account.MockApp) {
+				mock.EXPECT().
+					GetBalance(gomock.Any(), accountID).
+					Return(nil, errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			ctrl, ctx := gomock.WithContext(context.Background(), t)
+
+			mockApp := account.NewMockApp(ctrl)
+
+			cs.PrepareMockApp(mockApp)
+
+			h := handler{
+				logger:     logger.New(""),
+				accountApp: mockApp,
+			}
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, endpoint, nil).WithContext(ctx)
+			rec := httptest.NewRecorder()
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			c := e.NewContext(req, rec)
+			c.SetPath(endpoint)
+			c.SetParamNames("id")
+			c.SetParamValues(accountID)
+
+			err := h.getAccountBalance(c)
+
+			assert.Equal(t, cs.ExpectedErr, err)
+
+			expectedResponseJSON, err := json.Marshal(apimodel.Response{Data: cs.ExpectedData})
+			assert.NoError(t, err)
+
+			var expectedResponse apimodel.Response
+			err = json.Unmarshal(expectedResponseJSON, &expectedResponse)
+			assert.NoError(t, err)
+
+			var currentResponse apimodel.Response
+			json.NewDecoder(rec.Body).Decode(&currentResponse)
+
+			assert.Equal(t, expectedResponse, currentResponse)
+		})
+	}
+}
