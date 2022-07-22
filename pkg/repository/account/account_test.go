@@ -306,3 +306,60 @@ func TestGetByIDOrDocument(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateBalance(t *testing.T) {
+	query := regexp.QuoteMeta("UPDATE accounts SET balance = $1 WHERE id = $2")
+	cases := map[string]struct {
+		InputAccountID string
+		InputBalance   int64
+		ExpectedError  error
+		PrepareMockSQL func(mock sqlmock.Sqlmock)
+	}{
+		"should return success": {
+			InputAccountID: "account_id",
+			InputBalance:   1000,
+			ExpectedError:  nil,
+			PrepareMockSQL: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec(query).
+					WithArgs(1000, "account_id").
+					WillReturnResult(sqlmock.NewResult(0, 1))
+			},
+		},
+		"should return error": {
+			InputAccountID: "account_id",
+			InputBalance:   1000,
+			ExpectedError:  errors.New("fail"),
+			PrepareMockSQL: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec(query).
+					WithArgs(1000, "account_id").
+					WillReturnError(errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			dbMock, sqlMock := test.GetSQLMock()
+			repo := NewRepository(Options{
+				Logger: logger.New(""),
+				DB:     db.NewExtendedDB(dbMock),
+			})
+
+			cs.PrepareMockSQL(sqlMock)
+
+			err := repo.UpdateBalance(context.Background(), cs.InputAccountID, cs.InputBalance)
+
+			assert.Equal(t, cs.ExpectedError, err)
+		})
+	}
+}
+
+func TestWithTransaction(t *testing.T) {
+	repoWithDB := &repositoryImpl{
+		db: db.ExtendedDB(nil),
+	}
+	repoWithTx := &repositoryImpl{
+		db: db.ExtendedTx(nil),
+	}
+	assert.Equal(t, repoWithTx, repoWithDB.WithTransaction(db.ExtendedTx(nil)))
+}

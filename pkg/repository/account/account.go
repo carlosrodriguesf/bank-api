@@ -5,6 +5,7 @@ package account
 import (
 	"context"
 	"database/sql"
+	"github.com/carlosrodriguesf/bank-api/pkg/apputil/transaction"
 	"github.com/carlosrodriguesf/bank-api/pkg/model"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/db"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/logger"
@@ -13,7 +14,7 @@ import (
 type (
 	Options struct {
 		Logger logger.Logger
-		DB     db.ExtendedDB
+		DB     db.Connection
 	}
 
 	Repository interface {
@@ -21,11 +22,13 @@ type (
 		HasDocument(ctx context.Context, document string) (bool, error)
 		List(ctx context.Context) ([]model.Account, error)
 		GetByIDOrDocument(ctx context.Context, v string) (*model.Account, error)
+		UpdateBalance(ctx context.Context, accountID string, balance int64) error
+		WithTransaction(conn transaction.Transaction) Repository
 	}
 
 	repositoryImpl struct {
 		logger logger.Logger
-		db     db.ExtendedDB
+		db     db.Connection
 	}
 )
 
@@ -83,4 +86,20 @@ func (r *repositoryImpl) GetByIDOrDocument(ctx context.Context, v string) (*mode
 		return nil, err
 	}
 	return acc, nil
+}
+
+func (r *repositoryImpl) UpdateBalance(ctx context.Context, accountID string, balance int64) error {
+	query := "UPDATE accounts SET balance = $1 WHERE id = $2"
+	_, err := r.db.ExecContext(ctx, query, balance, accountID)
+	if err != nil {
+		r.logger.Error(err)
+	}
+	return err
+}
+
+func (r *repositoryImpl) WithTransaction(conn transaction.Transaction) Repository {
+	return &repositoryImpl{
+		logger: r.logger,
+		db:     conn,
+	}
 }
