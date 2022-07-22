@@ -72,7 +72,7 @@ func (r *repositoryImpl) List(ctx context.Context) ([]model.Account, error) {
 }
 
 func (r *repositoryImpl) GetByIDOrDocument(ctx context.Context, v string) (*model.Account, error) {
-	query := "SELECT id, name, document, balance, created_at FROM accounts WHERE id = $1 OR document = $1"
+	query := "SELECT id, name, document, balance, secret, secret_salt, created_at FROM accounts WHERE id = $1 OR document = $1"
 	acc := new(model.Account)
 	err := r.db.GetContext(ctx, acc, query, v)
 	if err != nil {

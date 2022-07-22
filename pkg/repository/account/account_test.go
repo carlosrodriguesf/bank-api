@@ -223,7 +223,7 @@ func TestListAccounts(t *testing.T) {
 
 func TestGetByIDOrDocument(t *testing.T) {
 	var (
-		query          = regexp.QuoteMeta(`SELECT id, name, document, balance, created_at FROM accounts WHERE id = $1 OR document = $1`)
+		query          = regexp.QuoteMeta(`SELECT id, name, document, balance, secret, secret_salt, created_at FROM accounts WHERE id = $1 OR document = $1`)
 		accountExample = model.Account{
 			ID:         "account_id",
 			Name:       "Account Test",

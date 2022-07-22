@@ -133,6 +133,7 @@ func main() {
 	})
 	appContainer := app.NewContainer(app.Options{
 		Logger:     log,
+		Cache:      connCache,
 		Repository: repositoryContainer,
 	})
 	api.Register(e, apimodel.Options{

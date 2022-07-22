@@ -3,6 +3,7 @@ package v1
 import (
 	apimodel "github.com/carlosrodriguesf/bank-api/pkg/api/model"
 	"github.com/carlosrodriguesf/bank-api/pkg/api/v1/account"
+	"github.com/carlosrodriguesf/bank-api/pkg/api/v1/auth"
 	"github.com/labstack/echo/v4"
 )
 
@@ -12,6 +13,7 @@ func Register(g *echo.Group, opts apimodel.Options) {
 	g = g.Group("/v1")
 
 	account.Register(g, opts)
+	auth.Register(g, opts)
 
 	log.Info("registered")
 }
