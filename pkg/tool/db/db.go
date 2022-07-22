@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	ExtendedDB interface {
+	Connection interface {
 		PrepareNamedContext(ctx context.Context, query string) (*sqlx.NamedStmt, error)
 		NamedQueryContext(ctx context.Context, query string, arg interface{}) (*sqlx.Rows, error)
 		NamedExecContext(ctx context.Context, query string, arg interface{}) (sql.Result, error)
@@ -21,10 +21,13 @@ type (
 		NamedGetContext(ctx context.Context, query string, dest, arg interface{}) error
 		NamedSelectContext(ctx context.Context, query string, dest, arg interface{}) error
 		ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	}
+	ExtendedDB interface {
+		Connection
 		Close() error
 	}
 	ExtendedTx interface {
-		ExtendedDB
+		Connection
 		Commit() error
 		Rollback() error
 	}

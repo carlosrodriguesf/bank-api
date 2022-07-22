@@ -71,6 +71,3 @@ func (db *extendedTx) NamedQueryContext(ctx context.Context, query string, arg i
 
 	return stmt.QueryxContext(ctx, arg)
 }
-func (db *extendedTx) Close() error {
-	return nil
-}
