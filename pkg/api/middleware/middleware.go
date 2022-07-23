@@ -9,7 +9,7 @@ import (
 type (
 	Options struct {
 		Logger logger.Logger
-		Apps   app.Container
+		App    app.Container
 	}
 	Container interface {
 		Auth() auth.Middleware
@@ -23,7 +23,7 @@ func NewContainer(opts Options) Container {
 	return &container{
 		auth: auth.NewMiddleware(auth.Options{
 			Logger: opts.Logger,
-			Apps:   opts.Apps,
+			Apps:   opts.App,
 		}),
 	}
 }

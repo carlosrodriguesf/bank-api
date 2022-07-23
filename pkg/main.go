@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/carlosrodriguesf/bank-api/pkg/api"
 	apierror "github.com/carlosrodriguesf/bank-api/pkg/api/error"
+	"github.com/carlosrodriguesf/bank-api/pkg/api/middleware"
 	apimodel "github.com/carlosrodriguesf/bank-api/pkg/api/model"
 	"github.com/carlosrodriguesf/bank-api/pkg/app"
 	"github.com/carlosrodriguesf/bank-api/pkg/repository"
@@ -132,13 +133,19 @@ func main() {
 		DB:     connDB,
 	})
 	appContainer := app.NewContainer(app.Options{
+		DB:         connDB,
 		Logger:     log,
 		Cache:      connCache,
 		Repository: repositoryContainer,
 	})
-	api.Register(e, apimodel.Options{
+	middlewareContainer := middleware.NewContainer(middleware.Options{
 		Logger: log,
 		App:    appContainer,
+	})
+	api.Register(e, apimodel.Options{
+		Logger:     log,
+		App:        appContainer,
+		Middleware: middlewareContainer,
 	})
 
 	if err = e.Start(":" + os.Getenv("PORT")); err != nil {
