@@ -5,10 +5,10 @@ package account
 import (
 	"context"
 	"database/sql"
-	"github.com/carlosrodriguesf/bank-api/pkg/apputil/transaction"
 	"github.com/carlosrodriguesf/bank-api/pkg/model"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/db"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/logger"
+	"github.com/carlosrodriguesf/bank-api/pkg/tool/transaction"
 )
 
 type (

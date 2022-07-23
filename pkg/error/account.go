@@ -8,4 +8,5 @@ var (
 	ErrCantListAccounts      = errors.New("account.cant-list-accounts")
 	ErrAccountNotFound       = errors.New("account.account-not-found")
 	ErrCantGetAccountBalance = errors.New("account.cant-get-balance")
+	ErrInsufficientFunds     = errors.New("account.insufficient-funds")
 )

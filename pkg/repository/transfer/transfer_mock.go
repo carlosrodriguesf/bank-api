@@ -8,8 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	transaction "github.com/carlosrodriguesf/bank-api/pkg/apputil/transaction"
 	model "github.com/carlosrodriguesf/bank-api/pkg/model"
+	transaction "github.com/carlosrodriguesf/bank-api/pkg/tool/transaction"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -49,20 +49,6 @@ func (m *MockRepository) Create(ctx context.Context, movement model.Transfer) (*
 func (mr *MockRepositoryMockRecorder) Create(ctx, movement interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), ctx, movement)
-}
-
-// CreateMovement mocks base method.
-func (m *MockRepository) CreateMovement(ctx context.Context, transferID, movementID string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateMovement", ctx, transferID, movementID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CreateMovement indicates an expected call of CreateMovement.
-func (mr *MockRepositoryMockRecorder) CreateMovement(ctx, transferID, movementID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMovement", reflect.TypeOf((*MockRepository)(nil).CreateMovement), ctx, transferID, movementID)
 }
 
 // WithTransaction mocks base method.

@@ -11,7 +11,8 @@ type (
 	Transaction = db.ExtendedTx
 	Manager     interface {
 		Create(ctx context.Context) (Transaction, error)
-		EndTransaction(tx Transaction, commit bool) error
+		Commit(tx Transaction) error
+		Rollback(tx Transaction) error
 	}
 	manager struct {
 		db db.ExtendedDB
@@ -28,9 +29,10 @@ func (r *manager) Create(ctx context.Context) (Transaction, error) {
 	return db.BeginTransaction(ctx, r.db)
 }
 
-func (r *manager) EndTransaction(tx Transaction, commit bool) error {
-	if commit {
-		return tx.Commit()
-	}
+func (r *manager) Commit(tx Transaction) error {
+	return tx.Commit()
+}
+
+func (r *manager) Rollback(tx Transaction) error {
 	return tx.Rollback()
 }

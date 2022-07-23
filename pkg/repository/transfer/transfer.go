@@ -4,10 +4,10 @@ package transfer
 
 import (
 	"context"
-	"github.com/carlosrodriguesf/bank-api/pkg/apputil/transaction"
 	"github.com/carlosrodriguesf/bank-api/pkg/model"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/db"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/logger"
+	"github.com/carlosrodriguesf/bank-api/pkg/tool/transaction"
 )
 
 type (
@@ -32,7 +32,7 @@ func NewRepository(opts Options) Repository {
 	}
 }
 
-func (r *repositoryImpl) Create(ctx context.Context, movement model.Transfer) (*model.GeneratedData, error) {
+func (r repositoryImpl) Create(ctx context.Context, movement model.Transfer) (*model.GeneratedData, error) {
 	query := `
 		INSERT INTO transfers(origin_account_id, target_account_id, amount) 
 		VALUES (:origin_account_id, :target_account_id, :amount)

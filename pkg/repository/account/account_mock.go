@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	model "github.com/carlosrodriguesf/bank-api/pkg/model"
+	transaction "github.com/carlosrodriguesf/bank-api/pkg/tool/transaction"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -93,4 +94,32 @@ func (m *MockRepository) List(ctx context.Context) ([]model.Account, error) {
 func (mr *MockRepositoryMockRecorder) List(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRepository)(nil).List), ctx)
+}
+
+// UpdateBalance mocks base method.
+func (m *MockRepository) UpdateBalance(ctx context.Context, accountID string, balance int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateBalance", ctx, accountID, balance)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateBalance indicates an expected call of UpdateBalance.
+func (mr *MockRepositoryMockRecorder) UpdateBalance(ctx, accountID, balance interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBalance", reflect.TypeOf((*MockRepository)(nil).UpdateBalance), ctx, accountID, balance)
+}
+
+// WithTransaction mocks base method.
+func (m *MockRepository) WithTransaction(conn transaction.Transaction) Repository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithTransaction", conn)
+	ret0, _ := ret[0].(Repository)
+	return ret0
+}
+
+// WithTransaction indicates an expected call of WithTransaction.
+func (mr *MockRepositoryMockRecorder) WithTransaction(conn interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithTransaction", reflect.TypeOf((*MockRepository)(nil).WithTransaction), conn)
 }
