@@ -16,6 +16,63 @@ import (
 	"time"
 )
 
+func TestList(t *testing.T) {
+	transfersExample := []model.TransferDetailed{{
+		Transfer: model.Transfer{
+			ID:              "transfer_id",
+			OriginAccountID: "origin_account_id",
+			TargetAccountID: "target_account_id",
+			Amount:          500,
+			CreatedAt:       time.Now(),
+		},
+		OriginAccountName: "Origin Account",
+		TargetAccountName: "Target account",
+	}}
+	cases := map[string]struct {
+		InputData               string
+		ExpectedData            []model.TransferDetailed
+		ExpectedError           error
+		PrepareMockRepoTransfer func(mock *transfer.MockRepository)
+	}{
+		"should return success": {
+			InputData:     "origin_account_id",
+			ExpectedData:  transfersExample,
+			ExpectedError: nil,
+			PrepareMockRepoTransfer: func(mock *transfer.MockRepository) {
+				mock.EXPECT().List(gomock.Any(), "origin_account_id").Return(transfersExample, nil)
+			},
+		},
+		"should return error": {
+			InputData:     "origin_account_id",
+			ExpectedData:  nil,
+			ExpectedError: pkgerror.ErrCantListTransfers,
+			PrepareMockRepoTransfer: func(mock *transfer.MockRepository) {
+				mock.EXPECT().List(gomock.Any(), "origin_account_id").Return(nil, errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			var (
+				ctrl, ctx        = gomock.WithContext(context.Background(), t)
+				mockRepoTransfer = transfer.NewMockRepository(ctrl)
+				app              = NewApp(Options{
+					Logger:       logger.New(""),
+					RepoTransfer: mockRepoTransfer,
+				})
+			)
+
+			cs.PrepareMockRepoTransfer(mockRepoTransfer)
+
+			data, err := app.List(ctx, cs.InputData)
+
+			assert.Equal(t, cs.ExpectedData, data)
+			assert.Equal(t, cs.ExpectedError, err)
+		})
+	}
+}
+
 func TestCreate(t *testing.T) {
 	var (
 		currentTime = time.Now()
@@ -360,8 +417,6 @@ func TestCreate(t *testing.T) {
 			cs.PrepareMockRepoTransfer(mockRepoTransfer, txExample)
 
 			data, err := app.Create(ctx, createData)
-
-			time.Sleep(100 * time.Millisecond)
 
 			assert.Equal(t, cs.ExpectedData, data)
 			assert.Equal(t, cs.ExpectedError, err)

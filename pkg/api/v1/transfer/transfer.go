@@ -23,6 +23,7 @@ func Register(g *echo.Group, opts apimodel.Options) {
 	}
 
 	g.POST("/transfers", h.postTransfer, opts.Middleware.Auth().Private)
+	g.GET("/transfers", h.getTransfers, opts.Middleware.Auth().Private)
 
 	log.Error("registered")
 }
@@ -43,6 +44,24 @@ func (h *handler) postTransfer(c echo.Context) error {
 		TargetAccountID: body.TargetAccountID,
 		Amount:          body.Amount,
 	})
+	if err != nil {
+		if err := apierror.Get(err, errorMap); err != nil {
+			return err
+		}
+		log.Error(err)
+		return apierror.ErrInternal
+	}
+	return c.JSON(http.StatusOK, apimodel.Response{
+		Data: data,
+	})
+}
+
+func (h *handler) getTransfers(c echo.Context) error {
+	ctx := c.Request().Context()
+	log := h.logger.WithContext(ctx)
+
+	sess := model.GetSessionFromContext(ctx)
+	data, err := h.transferApp.List(ctx, sess.Account.ID)
 	if err != nil {
 		if err := apierror.Get(err, errorMap); err != nil {
 			return err

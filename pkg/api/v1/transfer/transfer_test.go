@@ -20,6 +20,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestHandler_CreateTransfer(t *testing.T) {
@@ -182,6 +183,96 @@ func TestHandler_CreateTransfer(t *testing.T) {
 			c.SetPath(endpoint)
 
 			err := h.postTransfer(c)
+
+			assert.Equal(t, cs.ExpectedErr, err)
+
+			expectedResponseJSON, err := json.Marshal(apimodel.Response{Data: cs.ExpectedData})
+			assert.NoError(t, err)
+
+			var expectedResponse apimodel.Response
+			err = json.Unmarshal(expectedResponseJSON, &expectedResponse)
+			assert.NoError(t, err)
+
+			var currentResponse apimodel.Response
+			json.NewDecoder(rec.Body).Decode(&currentResponse)
+
+			assert.Equal(t, expectedResponse, currentResponse)
+		})
+	}
+}
+
+func TestHandler_getTransfers(t *testing.T) {
+	var (
+		endpoint         = "/api/v1/transfers"
+		transfersExample = []model.TransferDetailed{{
+			Transfer: model.Transfer{
+				ID:              "transfer_id",
+				OriginAccountID: "origin_account_id",
+				TargetAccountID: "target_account_id",
+				Amount:          500,
+				CreatedAt:       time.Now(),
+			},
+			OriginAccountName: "Origin Account",
+			TargetAccountName: "Target account",
+		}}
+	)
+
+	cases := map[string]struct {
+		ExpectedData   []model.TransferDetailed
+		ExpectedErr    error
+		PrepareMockApp func(mock *transfer.MockApp)
+	}{
+		"should return success": {
+			ExpectedData: transfersExample,
+			ExpectedErr:  nil,
+			PrepareMockApp: func(mock *transfer.MockApp) {
+				mock.EXPECT().List(gomock.Any(), "origin_account_id").Return(transfersExample, nil)
+			},
+		},
+		"should return error": {
+			ExpectedData: nil,
+			ExpectedErr:  errorMap[pkgerror.ErrCantListTransfers],
+			PrepareMockApp: func(mock *transfer.MockApp) {
+				mock.EXPECT().List(gomock.Any(), "origin_account_id").Return(nil, pkgerror.ErrCantListTransfers)
+			},
+		},
+		"should return internal error": {
+			ExpectedData: nil,
+			ExpectedErr:  apierror.ErrInternal,
+			PrepareMockApp: func(mock *transfer.MockApp) {
+				mock.EXPECT().List(gomock.Any(), "origin_account_id").Return(nil, errors.New("fail"))
+			},
+		},
+	}
+
+	for name, cs := range cases {
+		t.Run(name, func(t *testing.T) {
+			ctrl, ctx := gomock.WithContext(context.Background(), t)
+
+			ctx = model.SetSessionOnContext(ctx, &model.Session{
+				Token: "session_token",
+				Account: model.Account{
+					ID: "origin_account_id",
+				},
+			})
+
+			mockApp := transfer.NewMockApp(ctrl)
+
+			cs.PrepareMockApp(mockApp)
+
+			h := handler{
+				logger:      logger.New(""),
+				transferApp: mockApp,
+			}
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, endpoint, nil).WithContext(ctx)
+			rec := httptest.NewRecorder()
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			c := e.NewContext(req, rec)
+			c.SetPath(endpoint)
+
+			err := h.getTransfers(c)
 
 			assert.Equal(t, cs.ExpectedErr, err)
 

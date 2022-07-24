@@ -51,6 +51,21 @@ func (mr *MockRepositoryMockRecorder) Create(ctx, movement interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), ctx, movement)
 }
 
+// List mocks base method.
+func (m *MockRepository) List(ctx context.Context, accountID string) ([]model.TransferDetailed, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "List", ctx, accountID)
+	ret0, _ := ret[0].([]model.TransferDetailed)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// List indicates an expected call of List.
+func (mr *MockRepositoryMockRecorder) List(ctx, accountID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRepository)(nil).List), ctx, accountID)
+}
+
 // WithTransaction mocks base method.
 func (m *MockRepository) WithTransaction(conn transaction.Transaction) Repository {
 	m.ctrl.T.Helper()

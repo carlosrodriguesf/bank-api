@@ -24,6 +24,7 @@ type (
 	}
 	App interface {
 		Create(ctx context.Context, transfer model.Transfer) (*model.Transfer, error)
+		List(ctx context.Context, accountID string) ([]model.TransferDetailed, error)
 	}
 	appImpl struct {
 		logger       logger.Logger
@@ -44,7 +45,15 @@ func NewApp(opts Options) App {
 	}
 }
 
-// Create Create a transfer validating data amd treating errors
+func (a *appImpl) List(ctx context.Context, accountID string) ([]model.TransferDetailed, error) {
+	transfers, err := a.repoTransfer.List(ctx, accountID)
+	if err != nil {
+		a.logger.Error(err)
+		return nil, pkgerror.ErrCantListTransfers
+	}
+	return transfers, nil
+}
+
 func (a appImpl) Create(ctx context.Context, transfer model.Transfer) (*model.Transfer, error) {
 	if err := a.validator.Validate(transfer); err != nil {
 		return nil, err

@@ -8,6 +8,7 @@ import (
 
 var errorMap = map[error]*apierror.ApiError{
 	pkgerror.ErrCantCreateTransfer:            apierror.NewApiError(http.StatusInternalServerError, pkgerror.ErrCantCreateTransfer.Error(), nil),
+	pkgerror.ErrCantListTransfers:             apierror.NewApiError(http.StatusInternalServerError, pkgerror.ErrCantListTransfers.Error(), nil),
 	pkgerror.ErrOriginAccountTransferNotFound: apierror.NewApiError(http.StatusBadRequest, pkgerror.ErrOriginAccountTransferNotFound.Error(), nil),
 	pkgerror.ErrTargetAccountTransferNotFound: apierror.NewApiError(http.StatusBadRequest, pkgerror.ErrTargetAccountTransferNotFound.Error(), nil),
 	pkgerror.ErrInsufficientFunds:             apierror.NewApiError(http.StatusBadRequest, pkgerror.ErrInsufficientFunds.Error(), nil),
