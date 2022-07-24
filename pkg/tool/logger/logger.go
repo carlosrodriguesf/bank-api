@@ -47,16 +47,16 @@ func (l logger) WithLocation() Logger {
 
 func (l logger) Error(v interface{}) {
 	l.withLocation = true
-	log.Printf("[error]%s: %v", l.getAdditionalData(), v)
+	log.Printf("[error] %s: %v", l.getAdditionalData(), v)
 }
 
 func (l logger) Fatal(v interface{}) {
 	l.withLocation = true
-	log.Fatalf("[fatal]%s: %v", l.getAdditionalData(), v)
+	log.Fatalf("[fatal] %s: %v", l.getAdditionalData(), v)
 }
 
 func (l logger) Info(v interface{}) {
-	log.Printf("[info]%s: %v", l.getAdditionalData(), v)
+	log.Printf("[info] %s: %v", l.getAdditionalData(), v)
 }
 
 func (l logger) getAdditionalData() string {

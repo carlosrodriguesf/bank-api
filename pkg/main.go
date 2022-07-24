@@ -21,7 +21,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	emiddleware "github.com/labstack/echo/v4/middleware"
-
 	"os"
 	"runtime"
 	"strings"
@@ -80,7 +79,12 @@ func startEcho(log logger.Logger) *echo.Echo {
 	e := echo.New()
 	e.Use(emiddleware.CORS())
 	e.Use(emiddleware.RequestID())
-	e.Use(emiddleware.Logger())
+	e.Use(emiddleware.LoggerWithConfig(emiddleware.LoggerConfig{
+		Skipper:          emiddleware.DefaultSkipper,
+		Format:           `id=${id} addr=${remote_ip} host=${host} method=${method} uri=${uri} user_agent=${user_agent} status=${status} error=${error} latency=${latency} bytes_in=${bytes_in} bytes_out=${bytes_out}`,
+		CustomTimeFormat: "2006-01-02 15:04:05.00000",
+		Output:           logger.NewWriter(log.WithPreffix("echo")),
+	}))
 	e.Use(emiddleware.BodyLimit("1M"))
 	e.Use(emiddleware.Recover())
 
