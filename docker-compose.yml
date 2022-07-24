@@ -33,7 +33,7 @@ services:
       - db
       - redis
     volumes:
-      - ./.gocache:/go
+      - ./.gocache/pkg:/go/pkg
       - ./.ssh:/root/.ssh
       - ./:/opt/app/api
     ports:
