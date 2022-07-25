@@ -25,9 +25,19 @@ func Register(g *echo.Group, opts apimodel.Options) {
 	g.POST("/transfers", h.postTransfer, opts.Middleware.Auth().Private)
 	g.GET("/transfers", h.getTransfers, opts.Middleware.Auth().Private)
 
-	log.Error("registered")
+	log.Info("registered")
 }
 
+// postTransfer swagger document
+// @Description Make a transfer between accounts
+// @Tags transfer
+// @Produce json
+// @Security UserToken
+// @Param transfer body postTransferBody true "expected structure"
+// @Success 200 {object} model.Response{data=model.Transfer}
+// @Success 400 {object} model.Response{error=error.ApiError}
+// @Failure 500 {object} model.Response{error=error.ApiError}
+// @Router /api/v1/transfers [post]
 func (h *handler) postTransfer(c echo.Context) error {
 	ctx := c.Request().Context()
 	log := h.logger.WithContext(ctx)
@@ -56,6 +66,14 @@ func (h *handler) postTransfer(c echo.Context) error {
 	})
 }
 
+// getTransfers swagger document
+// @Description List of transfer received or sent by current auth user
+// @Tags transfer
+// @Produce json
+// @Security UserToken
+// @Success 200 {object} model.Response{data=[]model.Account}
+// @Failure 500 {object} model.Response{error=error.ApiError}
+// @Router /api/v1/transfers [get]
 func (h *handler) getTransfers(c echo.Context) error {
 	ctx := c.Request().Context()
 	log := h.logger.WithContext(ctx)

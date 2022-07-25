@@ -1,0 +1,301 @@
+definitions:
+  account.postAccountBody:
+    properties:
+      balance:
+        type: integer
+      document:
+        type: string
+      name:
+        type: string
+      secret:
+        type: string
+    type: object
+  error.ApiError:
+    properties:
+      code:
+        type: integer
+      detail:
+        type: object
+      message:
+        type: string
+    type: object
+  model.Account:
+    properties:
+      balance:
+        type: integer
+      created_at:
+        type: string
+      document:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - balance
+    - document
+    - name
+    type: object
+  model.AccountBalance:
+    properties:
+      balance:
+        type: integer
+    type: object
+  model.Credentials:
+    properties:
+      document:
+        type: string
+      secret:
+        type: string
+    required:
+    - document
+    - secret
+    type: object
+  model.Response:
+    type: object
+  model.Transfer:
+    properties:
+      amount:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: string
+      origin_account_id:
+        type: string
+      target_account_id:
+        type: string
+    type: object
+  transfer.postTransferBody:
+    properties:
+      account_destination_id:
+        type: string
+      amount:
+        type: integer
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /api/v1/accounts:
+    get:
+      description: List accounts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Account'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                error:
+                  $ref: '#/definitions/error.ApiError'
+              type: object
+      tags:
+      - account
+    post:
+      description: Create account
+      parameters:
+      - description: expected structure
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/account.postAccountBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Account'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                error:
+                  $ref: '#/definitions/error.ApiError'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                error:
+                  $ref: '#/definitions/error.ApiError'
+              type: object
+      tags:
+      - account
+  /api/v1/accounts/{id}/balance:
+    get:
+      description: Get balance of an account
+      parameters:
+      - description: id of an account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AccountBalance'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                error:
+                  $ref: '#/definitions/error.ApiError'
+              type: object
+      tags:
+      - account
+  /api/v1/login:
+    post:
+      description: Login
+      parameters:
+      - description: expected structure
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/model.Credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Account'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                error:
+                  $ref: '#/definitions/error.ApiError'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                error:
+                  $ref: '#/definitions/error.ApiError'
+              type: object
+      tags:
+      - auth
+  /api/v1/transfers:
+    get:
+      description: List of transfer received or sent by current auth user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Account'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                error:
+                  $ref: '#/definitions/error.ApiError'
+              type: object
+      security:
+      - UserToken: []
+      tags:
+      - transfer
+    post:
+      description: Make a transfer between accounts
+      parameters:
+      - description: expected structure
+        in: body
+        name: transfer
+        required: true
+        schema:
+          $ref: '#/definitions/transfer.postTransferBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Transfer'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                error:
+                  $ref: '#/definitions/error.ApiError'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                error:
+                  $ref: '#/definitions/error.ApiError'
+              type: object
+      security:
+      - UserToken: []
+      tags:
+      - transfer
+securityDefinitions:
+  UserToken:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

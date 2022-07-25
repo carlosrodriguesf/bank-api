@@ -2,6 +2,11 @@ configure:
 	ln -s "${HOME}/.ssh" .ssh
 	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
+#docs
+swagger:
+	go install github.com/swaggo/swag/cmd/swag@v1.6.7
+	go get github.com/swaggo/echo-swagger@v1.3.0
+	swag init --parseDependency --parseInternal -g pkg/api/api.go
 
 # migration commands
 migration-create: ## usage: 'make migration-create name="{{migration-name}}"'

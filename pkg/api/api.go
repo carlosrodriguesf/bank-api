@@ -6,6 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Register configure swagger
+// Api use bearer token in private requests
+// @securityDefinitions.apikey UserToken
+// @in header
+// @name Authorization
 func Register(e *echo.Echo, opts apimodel.Options) {
 	v1.Register(e.Group("/api"), opts)
 
