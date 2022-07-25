@@ -7,6 +7,7 @@ import (
 	apierror "github.com/carlosrodriguesf/bank-api/pkg/api/error"
 	"github.com/carlosrodriguesf/bank-api/pkg/api/middleware"
 	apimodel "github.com/carlosrodriguesf/bank-api/pkg/api/model"
+	"github.com/carlosrodriguesf/bank-api/pkg/api/swagger"
 	"github.com/carlosrodriguesf/bank-api/pkg/app"
 	"github.com/carlosrodriguesf/bank-api/pkg/repository"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/cache"
@@ -108,6 +109,15 @@ func getProjectDir() string {
 	return strings.Replace(file, "main.go", "", 1)
 }
 
+func startSwagger(e *echo.Echo, log logger.Logger) {
+	swagger.Register(swagger.Options{
+		Echo:    e,
+		Logger:  log,
+		Title:   "Bank API Docs",
+		Version: os.Getenv("VERSION"),
+	})
+}
+
 func main() {
 	log := logger.New(getProjectDir())
 
@@ -151,6 +161,10 @@ func main() {
 		App:        appContainer,
 		Middleware: middlewareContainer,
 	})
+
+	if os.Getenv("ENABLE_DOCS") == "true" {
+		startSwagger(e, log)
+	}
 
 	if err = e.Start(":" + os.Getenv("PORT")); err != nil {
 		log.Fatal(err)

@@ -15,7 +15,7 @@ type (
 	}
 
 	Response struct {
-		Data  interface{}        `json:"data,omitempty"`
-		Error *apierror.ApiError `json:"error,omitempty"`
+		Data  interface{}        `json:"data,omitempty" swaggerignore:"true"`
+		Error *apierror.ApiError `json:"error,omitempty" swaggerignore:"true"`
 	}
 )

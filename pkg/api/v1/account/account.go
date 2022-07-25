@@ -29,6 +29,15 @@ func Register(g *echo.Group, opts apimodel.Options) {
 	log.Info("registered")
 }
 
+// postAccount swagger document
+// @Description Create account
+// @Tags account
+// @Produce json
+// @Param account body postAccountBody true "expected structure"
+// @Success 200 {object} model.Response{data=model.Account}
+// @Success 400 {object} model.Response{error=error.ApiError}
+// @Failure 500 {object} model.Response{error=error.ApiError}
+// @Router /api/v1/accounts [post]
 func (h *handler) postAccount(c echo.Context) error {
 	ctx := c.Request().Context()
 	log := h.logger.WithContext(ctx)
@@ -57,6 +66,13 @@ func (h *handler) postAccount(c echo.Context) error {
 	})
 }
 
+// getAccounts swagger document
+// @Description List accounts
+// @Tags account
+// @Produce json
+// @Success 200 {object} model.Response{data=[]model.Account}
+// @Failure 500 {object} model.Response{error=error.ApiError}
+// @Router /api/v1/accounts [get]
 func (h *handler) getAccounts(c echo.Context) error {
 	ctx := c.Request().Context()
 	log := h.logger.WithContext(ctx)
@@ -74,6 +90,14 @@ func (h *handler) getAccounts(c echo.Context) error {
 	})
 }
 
+// getAccountBalance swagger document
+// @Description Get balance of an account
+// @Tags account
+// @Produce json
+// @Param id path string true "id of an account"
+// @Success 200 {object} model.Response{data=model.AccountBalance}
+// @Failure 500 {object} model.Response{error=error.ApiError}
+// @Router /api/v1/accounts/{id}/balance [get]
 func (h *handler) getAccountBalance(c echo.Context) error {
 	ctx := c.Request().Context()
 	log := h.logger.WithContext(ctx)

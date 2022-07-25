@@ -28,6 +28,15 @@ func Register(g *echo.Group, opts apimodel.Options) {
 	log.Info("registered")
 }
 
+// login swagger document
+// @Description Login
+// @Tags auth
+// @Produce json
+// @Param credentials body model.Credentials true "expected structure"
+// @Success 200 {object} model.Response{data=model.Account}
+// @Success 400 {object} model.Response{error=error.ApiError}
+// @Failure 500 {object} model.Response{error=error.ApiError}
+// @Router /api/v1/login [post]
 func (h *handler) login(c echo.Context) error {
 	ctx := c.Request().Context()
 	log := h.logger.WithContext(ctx)
