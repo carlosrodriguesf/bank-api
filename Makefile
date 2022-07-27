@@ -11,10 +11,11 @@ migration-down: ## usage: 'make migration-down count={{count}}'
 
 # local machine commands
 go-test:
-	go test ./...
+	go test $(shell go list ./... | grep -E '(/api/v1/|/app/|/repository/)')
 
 go-test-cover:
-	go test -coverprofile=coverage.out ./...
+	go test -coverprofile=coverage.out $(shell go list ./... | grep -E '(/api/v1/|/app/|/repository/)')
+	#cat coverage.out | grep -v "_mock" >> coverage.out
 	go tool cover -html=coverage.out
 
 go-run:

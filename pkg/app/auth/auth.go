@@ -8,6 +8,7 @@ import (
 	"github.com/carlosrodriguesf/bank-api/pkg/model"
 	"github.com/carlosrodriguesf/bank-api/pkg/repository/account"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/cache"
+	"github.com/carlosrodriguesf/bank-api/pkg/tool/generate"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/logger"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/secret"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/validator"
@@ -27,6 +28,7 @@ type (
 		Cache       cache.Cache
 		Validator   validator.Validator
 		RepoAccount account.Repository
+		Generate    generate.Generate
 	}
 	App interface {
 		Auth(ctx context.Context, credentials model.Credentials) (*model.Session, error)
@@ -38,6 +40,7 @@ type (
 		cache       cache.Cache
 		validator   validator.Validator
 		repoAccount account.Repository
+		generate    generate.Generate
 	}
 )
 

@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"bou.ke/monkey"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/agiledragon/gomonkey/v2"
 	pkgerror "github.com/carlosrodriguesf/bank-api/pkg/error"
 	"github.com/carlosrodriguesf/bank-api/pkg/model"
 	"github.com/carlosrodriguesf/bank-api/pkg/repository/account"
@@ -191,11 +191,11 @@ func TestAuth(t *testing.T) {
 			cs.PrepareMockRepository(mockRepository)
 			cs.PrepareMockCache(mockCache)
 
-			patchTime := monkey.Patch(time.Now, func() time.Time { return currentTime })
-			defer patchTime.Unpatch()
+			patchTime := gomonkey.ApplyFunc(time.Now, func() time.Time { return currentTime })
+			defer patchTime.Reset()
 
-			patchUUID := monkey.Patch(uuid.NewString, func() string { return uuidExample })
-			defer patchUUID.Unpatch()
+			patchUUID := gomonkey.ApplyFunc(uuid.NewString, func() string { return uuidExample })
+			defer patchUUID.Reset()
 
 			app := NewApp(Options{
 				Logger:      logger.New(""),
@@ -287,11 +287,11 @@ func TestGetSessionByToken(t *testing.T) {
 
 			cs.PrepareMockCache(mockCache)
 
-			patchTime := monkey.Patch(time.Now, func() time.Time { return currentTime })
-			defer patchTime.Unpatch()
+			patchTime := gomonkey.ApplyFunc(time.Now, func() time.Time { return currentTime })
+			defer patchTime.Reset()
 
-			patchUUID := monkey.Patch(uuid.NewString, func() string { return uuidExample })
-			defer patchUUID.Unpatch()
+			patchUUID := gomonkey.ApplyFunc(uuid.NewString, func() string { return uuidExample })
+			defer patchUUID.Reset()
 
 			app := NewApp(Options{
 				Logger:      logger.New(""),
