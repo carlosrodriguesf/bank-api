@@ -53,8 +53,11 @@ Após rodar o comando a lista de rotas disponíveis poderá ser acessada em: `ht
 - `docs/`: Arquivos gerados pelo swagger, referente a documentação.
 - `pkg/`: contém os pacotes e todo o código da aplicação.
     - `api/`: O codígo relacionado com a camada de api contendo rotas, middlewares e erros http.
-        - `v1/`: Contém a configuração de rotas da versão 1 da api.
-        - `middleware/`: Contém os middlewares para serem usados na camada de api.
+      - `error/`: Contém o código para tratamento de erros de api e mapeamento dos códigos http
+      - `middleware/`: Contém os middlewares para serem usados na camada de api.
+      - `model/`: Contém modelos utilizados entre as rotas da api.
+      - `swagger`: Contém o código para executar o swagger.
+      - `v1/`: Contém a configuração de rotas da versão 1 da api.
     - `app/`: Aqui fica o código responsável por lidar com as regras de negócio.
     - `model/`: Aqui ficam os modelos globais utilizados entre as camadas do serviço.
     - `error/`: Aqui ficam os possíveis erros mapeados do serviço.
