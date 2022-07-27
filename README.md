@@ -13,14 +13,8 @@
 - Clone o repositório:
     - `git clone https://github.com/carlosrodriguesf/bank-api`
     - `cd bank-api`
-
-  &nbsp;
-
 - Configure o projeto
     - `make configure`
-
-  &nbsp;
-
 - Execute o serviço
     - `make run`
 
@@ -32,24 +26,18 @@
     - `make go-test`: Executa os testes unitários.
     - `make go-test-cover`: Executa os testes unitários e abre o coverage no navegador.
 
-  &nbsp;
-
 - Execução dentro do docker
     - `make generate`: Roda o comando `make go-generate`.
     - `make test`: Roda o comando `make go-test`.
     - `make run-services`: Sobe o Redis e o PostgreSQL.
     - `make run`: Sobe o Redis, PostgreSQL e a api.
     - `make run-watch`: Faz a mesma coisa que o comando `make run` e também inicia o nodemon.
-
-  &nbsp;
-
+    
 - Migrations
     - `make migration-create name="{name}"`: Cria uma migration
         - `name`: Nome da migration a ser criada
     - `make migration-down count={count}`: Faz rollback das migrations
         - `count`: Quantas migrations restaurar
-
-  &nbsp;
 
 - Documentação
     - `make swagger`: Gera a configuração do swagger
