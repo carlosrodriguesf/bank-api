@@ -14,9 +14,12 @@
     - `git clone https://github.com/carlosrodriguesf/bank-api`
     - `cd bank-api`
 - Configure o projeto
+    - `cp .env.dist .env`
     - `make configure`
 - Execute o serviço
     - `make run`
+
+Após rodar o comando a lista de rotas disponíveis poderá ser acessada em: `http://localhost:8080/docs`
 
 ### :hammer_and_wrench: Commando disponíveis:
 
@@ -44,6 +47,8 @@
 
 ### :open_file_folder: Arquitetura
 
+- `.env`: Arquivo de configurações para execução do projeto localmente
+- `.env.dist`: Arquivo de exemplo para a criação do arquivo de configurações 
 - `migrations/`: Esse diretório possui todas as migration que serão necessarias para rodar a aplicação.
 - `docs/`: Arquivos gerados pelo swagger, referente a documentação.
 - `pkg/`: contém os pacotes e todo o código da aplicação.

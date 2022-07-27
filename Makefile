@@ -1,8 +1,3 @@
-configure:
-	ln -s "${HOME}/.ssh" .ssh
-	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-	go install github.com/swaggo/swag/cmd/swag@v1.6.7
-
 #docs
 swagger:
 	swag init --parseDependency --parseInternal -g pkg/api/api.go
@@ -35,17 +30,21 @@ docker-build:
 run-services:
 	docker-compose up db redis
 
-generate: docker-build
-	docker-compose run api sh -c "make go-generate"
+generate:
+	docker-compose run api-exec sh -c "make go-generate"
 
-test: docker-build
-	docker-compose run api sh -c "make go-test"
+test:
+	docker-compose run api-exec sh -c "make go-test"
 
-test-cover: docker-build
-	docker-compose run api sh -c "make go-test-cover"
+test-cover:
+	docker-compose run api-exec sh -c "make go-test-cover"
 
-run: docker-build
-	docker-compose up
+run:
+	docker-compose up db redis api
 
-run-watch: docker-build
+run-watch:
 	docker-compose up & npx nodemon --watch pkg --ext ".go" --exec docker-compose restart api
+
+configure: docker-build
+	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+	go install github.com/swaggo/swag/cmd/swag@v1.6.7
