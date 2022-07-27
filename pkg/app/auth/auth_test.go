@@ -4,18 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/agiledragon/gomonkey/v2"
 	pkgerror "github.com/carlosrodriguesf/bank-api/pkg/error"
 	"github.com/carlosrodriguesf/bank-api/pkg/model"
 	"github.com/carlosrodriguesf/bank-api/pkg/repository/account"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/cache"
+	"github.com/carlosrodriguesf/bank-api/pkg/tool/generate"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/logger"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/secret"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/validator"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-
 	"testing"
 	"time"
 )
@@ -184,6 +183,7 @@ func TestAuth(t *testing.T) {
 				mockSecret     = secret.NewMockSecret(ctrl)
 				mockValidator  = validator.NewMockValidator(ctrl)
 				mockRepository = account.NewMockRepository(ctrl)
+				mockGenerate   = generate.NewMockGenerate(ctrl)
 			)
 
 			cs.PrepareMockSecret(mockSecret)
@@ -191,11 +191,8 @@ func TestAuth(t *testing.T) {
 			cs.PrepareMockRepository(mockRepository)
 			cs.PrepareMockCache(mockCache)
 
-			patchTime := gomonkey.ApplyFunc(time.Now, func() time.Time { return currentTime })
-			defer patchTime.Reset()
-
-			patchUUID := gomonkey.ApplyFunc(uuid.NewString, func() string { return uuidExample })
-			defer patchUUID.Reset()
+			mockGenerate.EXPECT().UUID().AnyTimes().Return(uuidExample)
+			mockGenerate.EXPECT().CurrentTime().AnyTimes().Return(currentTime)
 
 			app := NewApp(Options{
 				Logger:      logger.New(""),
@@ -203,6 +200,7 @@ func TestAuth(t *testing.T) {
 				Cache:       mockCache,
 				Validator:   mockValidator,
 				RepoAccount: mockRepository,
+				Generate:    mockGenerate,
 			})
 
 			data, err := app.Auth(ctx, cs.InputData)
@@ -283,15 +281,13 @@ func TestGetSessionByToken(t *testing.T) {
 				mockSecret     = secret.NewMockSecret(ctrl)
 				mockValidator  = validator.NewMockValidator(ctrl)
 				mockRepository = account.NewMockRepository(ctrl)
+				mockGenerate   = generate.NewMockGenerate(ctrl)
 			)
 
 			cs.PrepareMockCache(mockCache)
 
-			patchTime := gomonkey.ApplyFunc(time.Now, func() time.Time { return currentTime })
-			defer patchTime.Reset()
-
-			patchUUID := gomonkey.ApplyFunc(uuid.NewString, func() string { return uuidExample })
-			defer patchUUID.Reset()
+			mockGenerate.EXPECT().UUID().AnyTimes().Return(uuidExample)
+			mockGenerate.EXPECT().CurrentTime().AnyTimes().Return(currentTime)
 
 			app := NewApp(Options{
 				Logger:      logger.New(""),
@@ -299,6 +295,7 @@ func TestGetSessionByToken(t *testing.T) {
 				Cache:       mockCache,
 				Validator:   mockValidator,
 				RepoAccount: mockRepository,
+				Generate:    mockGenerate,
 			})
 
 			data, err := app.GetSessionByToken(ctx, cs.InputData)

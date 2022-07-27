@@ -12,7 +12,6 @@ import (
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/logger"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/secret"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/validator"
-	"github.com/google/uuid"
 	"time"
 )
 
@@ -51,6 +50,7 @@ func NewApp(opts Options) App {
 		cache:       opts.Cache,
 		validator:   opts.Validator,
 		repoAccount: opts.RepoAccount,
+		generate:    opts.Generate,
 	}
 }
 
@@ -74,9 +74,9 @@ func (a *appImpl) Auth(ctx context.Context, credentials model.Credentials) (*mod
 	}
 
 	session := &model.Session{
-		Token:     uuid.NewString(),
+		Token:     a.generate.UUID(),
 		Account:   *acc,
-		CreatedAt: time.Now(),
+		CreatedAt: a.generate.CurrentTime(),
 	}
 
 	err = a.cache.Set(ctx, getSessionCacheKey(session.Token), session, cacheExpiration)

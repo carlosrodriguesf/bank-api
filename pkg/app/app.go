@@ -7,6 +7,7 @@ import (
 	"github.com/carlosrodriguesf/bank-api/pkg/repository"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/cache"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/db"
+	"github.com/carlosrodriguesf/bank-api/pkg/tool/generate"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/logger"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/secret"
 	"github.com/carlosrodriguesf/bank-api/pkg/tool/transaction"
@@ -37,6 +38,7 @@ func NewContainer(opts Options) Container {
 		validatorInstance = validator.New()
 		secretInstance    = secret.New()
 		txManagerInstance = transaction.NewManager(opts.DB)
+		generateInstance  = generate.New()
 	)
 	return &container{
 		account: account.NewApp(account.Options{
@@ -51,6 +53,7 @@ func NewContainer(opts Options) Container {
 			Validator:   validatorInstance,
 			Secret:      secretInstance,
 			RepoAccount: opts.Repository.Account(),
+			Generate:    generateInstance,
 		}),
 		transfer: transfer.NewApp(transfer.Options{
 			Logger:       opts.Logger,

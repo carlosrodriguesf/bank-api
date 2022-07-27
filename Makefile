@@ -11,12 +11,12 @@ migration-down: ## usage: 'make migration-down count={{count}}'
 
 # local machine commands
 go-test:
-	go test $(shell go list ./... | grep -E '(/api/v1/|/app/|/repository/)')
+	go test ./...
 
 go-test-cover:
-	go test -coverprofile=coverage.out $(shell go list ./... | grep -E '(/api/v1/|/app/|/repository/)')
-	#cat coverage.out | grep -v "_mock" >> coverage.out
-	go tool cover -html=coverage.out
+	go test -coverprofile=coverage.out ./...
+	cat coverage.out | grep -E '(mode:|/api/v1/|/app/|/repository/)' | grep -v _mock.go > coverage.required.out
+	go tool cover -html=coverage.required.out
 
 go-run:
 	go run pkg/main.go
@@ -32,13 +32,13 @@ run-services:
 	docker-compose up db redis
 
 generate:
-	docker-compose run api-exec sh -c "make go-generate"
+	docker-compose run --rm api-exec sh -c "make go-generate"
 
 test:
-	docker-compose run api-exec sh -c "make go-test"
+	docker-compose run --rm api-exec sh -c "make go-test"
 
 test-cover:
-	docker-compose run api-exec sh -c "make go-test-cover"
+	docker-compose run --rm api-exec sh -c "make go-test-cover"
 
 run:
 	docker-compose up db redis api

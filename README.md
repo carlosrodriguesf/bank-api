@@ -69,5 +69,4 @@ Após rodar o comando a lista de rotas disponíveis poderá ser acessada em: `ht
 - [go-migrate](https://github.com/golang-migrate/migrate) - Gerenciamento de migrations
 - [postgresql](https://www.postgresql.org/docs) - Banco de dados da aplicação
 - [redis](https://redis.io) - Banco de dados para cache
-- [bouke/monkey](https://github.com/bouk/monkey) - Ferramenta pare fazer monkey path em **testes unitários**
 - [swaggo](https://github.com/swaggo) - Criação de documentação dos endpoints
