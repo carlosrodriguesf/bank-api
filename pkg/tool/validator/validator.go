@@ -88,10 +88,15 @@ func getJSONTag(val interface{}, fieldName string) string {
 		return ""
 	}
 
-	jsonTag, hasJsonTag := field.Tag.Lookup("json")
-	if !hasJsonTag {
-		return fieldName
+	labelTaf, hasTag := field.Tag.Lookup("label")
+	if hasTag {
+		return labelTaf
 	}
 
-	return strings.Split(jsonTag, ",")[0]
+	jsonTag, hasTag := field.Tag.Lookup("json")
+	if hasTag {
+		return strings.Split(jsonTag, ",")[0]
+	}
+
+	return fieldName
 }
